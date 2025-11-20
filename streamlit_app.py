@@ -2,7 +2,7 @@ import streamlit as st
 import requests
 from datetime import datetime
 
-WEBHOOK_URL = "https://k123c4.app.n8n.cloud/webhook-test/streamlit-chat"
+WEBHOOK_URL = "https://k123c4.app.n8n.cloud/webhook/streamlit-chat"
 
 st.set_page_config(page_title="My Wishlist", page_icon="📝")
 
