@@ -98,6 +98,11 @@ def load_wishlist_from_sheet():
     df.columns = [c.strip() for c in df.columns]  # clean up header names
     return df
 
+st.markdown("### 🔄 Reload Google Sheet")
+if st.button("Reload Sheet", type="primary"):
+    load_wishlist_from_sheet.clear()   # clears cache so next call is fresh
+    st.success("Sheet reloaded!")
+    st.rerun()
 
 
 def render_local_wishlist():
