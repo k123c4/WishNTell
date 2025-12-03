@@ -2,4 +2,3 @@ streamlit
 streamlit
 pandas
 requests
-html
