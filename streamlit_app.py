@@ -5,7 +5,7 @@ import pandas as pd
 
 WEBHOOK_URL = "https://k123c4.app.n8n.cloud/webhook/streamlit-chat"
 
-CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRs5rxWD1MRUbwNPmXkM0Dn6OSAuvpI865UZ0jBG-acmEjzlq5DXuxR8HnoANv1eJcJmpG3y1Q7D_Ab/pubhtml"
+CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRs5rxWD1MRUbwNPmXkM0Dn6OSAuvpI865UZ0jBG-acmEjzlq5DXuxR8HnoANv1eJcJmpG3y1Q7D_Ab/pub?output=csv"
 DEBUG_SHOW_WEBHOOK_RESPONSE = False
 
 # ⚙️ Page config
