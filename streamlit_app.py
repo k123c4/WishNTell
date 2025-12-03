@@ -1,14 +1,20 @@
 import streamlit as st
 import requests
 from datetime import datetime
-import pandas as pd 
-import html 
+import pandas as pd
+from html import unescape  # for decoding &#x27; into apostrophes
+
 WEBHOOK_URL = "https://k123c4.app.n8n.cloud/webhook/streamlit-chat"
 
-CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRs5rxWD1MRUbwNPmXkM0Dn6OSAuvpI865UZ0jBG-acmEjzlq5DXuxR8HnoANv1eJcJmpG3y1Q7D_Ab/pub?output=csv"
+CSV_URL = (
+    "https://docs.google.com/spreadsheets/d/e/"
+    "2PACX-1vRs5rxWD1MRUbwNPmXkM0Dn6OSAuvpI865UZ0jBG-acmEjzlq5DXuxR8HnoANv1eJcJmpG3y1Q7D_Ab/"
+    "pub?output=csv"
+)
+
 DEBUG_SHOW_WEBHOOK_RESPONSE = False
 
-# ⚙️ Page config
+# ⚙️ Page config (must be the first Streamlit call)
 st.set_page_config(
     page_title="My Wishlist",
     page_icon="📝",
@@ -84,7 +90,7 @@ def add_item(url: str, title: str, note: str):
         )
         if DEBUG_SHOW_WEBHOOK_RESPONSE:
             with st.expander("Error details"):
-                st.code(str(result))
+                st.code(item["error"])
 
 
 @st.cache_data(ttl=60)
@@ -94,15 +100,9 @@ def load_wishlist_from_sheet():
     - Row 1 is treated as headers (default for read_csv).
     - Row 2+ are the actual data rows.
     """
-    df = pd.read_csv(CSV_URL)        # header row = row 1, automatically
+    df = pd.read_csv(CSV_URL)
     df.columns = [c.strip() for c in df.columns]  # clean up header names
     return df
-
-st.markdown("### 🔄 Reload Google Sheet")
-if st.button("Reload Sheet", type="primary"):
-    load_wishlist_from_sheet.clear()   # clears cache so next call is fresh
-    st.success("Sheet reloaded!")
-    st.rerun()
 
 
 def render_local_wishlist():
@@ -149,6 +149,14 @@ def render_local_wishlist():
 def render_sheet_wishlist():
     st.subheader("📄 Wishlist from Google Sheet")
 
+    # 🔄 Reload button lives right above the sheet view
+    with st.container():
+        col_reload, col_spacer = st.columns([1, 3])
+        with col_reload:
+            if st.button("🔄 Reload Sheet"):
+                load_wishlist_from_sheet.clear()  # clears cache so next call is fresh
+                st.rerun()
+
     try:
         df = load_wishlist_from_sheet()
     except Exception as e:
@@ -166,14 +174,14 @@ def render_sheet_wishlist():
 
     st.markdown("---")
 
-    # Use column names dynamically so only row 2+ are iterated (headers excluded automatically)
+    # Use column positions dynamically (row 1 = headers, rows 2+ = data)
     name_col = df.columns[0]      # e.g. "product_name"
     price_col = df.columns[1]     # e.g. "price"
     currency_col = df.columns[2]  # e.g. "currency"
     image_col = df.columns[3]     # e.g. "image_url"
 
-    for _, row in df.iterrows():  # iterates from row 2 down (data rows only)
-        product_name = html.unescape(str(row.get(name_col, "")).strip())
+    for _, row in df.iterrows():  # iterates over data rows only
+        product_name = unescape(str(row.get(name_col, "")).strip())
         price = str(row.get(price_col, "")).strip()
         currency = str(row.get(currency_col, "")).strip()
         image_url = str(row.get(image_col, "")).strip()
