@@ -89,12 +89,15 @@ def add_item(url: str, title: str, note: str):
 
 @st.cache_data(ttl=60)
 def load_wishlist_from_sheet():
-    """Load wishlist data from the published Google Sheet (CSV)."""
-    df = pd.read_csv(CSV_URL)
-
-    # If your headers are different, adjust them here.
-    # Example expected columns: url, name/title, price, image_url, note, added_at
+    """
+    Load wishlist data from Google Sheet.
+    - Row 1 is treated as headers (default for read_csv).
+    - Row 2+ are the actual data rows.
+    """
+    df = pd.read_csv(CSV_URL)        # header row = row 1, automatically
+    df.columns = [c.strip() for c in df.columns]  # clean up header names
     return df
+
 
 
 def render_local_wishlist():
@@ -139,60 +142,53 @@ def render_local_wishlist():
 
 
 def render_sheet_wishlist():
-    """Show wishlist from the Google Sheet (source of truth)."""
     st.subheader("📄 Wishlist from Google Sheet")
 
     try:
         df = load_wishlist_from_sheet()
     except Exception as e:
-        st.error(f"Error loading Google Sheet: {e}")
+        st.error(f"Error loading Google Sheet CSV: {e}")
         return
 
     if df.empty:
-        st.info("Google Sheet is empty (no wishlist items yet).")
+        st.info("The Google Sheet is currently empty.")
         return
 
-    # Optional: show raw table
-    with st.expander("View raw table", expanded=False):
+    # OPTIONAL: Let you inspect what columns it sees
+    with st.expander("View raw sheet data", expanded=False):
+        st.write("Detected columns:", list(df.columns))
         st.dataframe(df, use_container_width=True)
 
     st.markdown("---")
 
-    # Render as nice cards
-    for _, row in df.iterrows():
+    # Use column names dynamically so only row 2+ are iterated (headers excluded automatically)
+    name_col = df.columns[0]      # e.g. "product_name"
+    price_col = df.columns[1]     # e.g. "price"
+    currency_col = df.columns[2]  # e.g. "currency"
+    image_col = df.columns[3]     # e.g. "image_url"
+
+    for _, row in df.iterrows():  # iterates from row 2 down (data rows only)
+        product_name = html.unescape(str(row.get(name_col, "")).strip())
+        price = str(row.get(price_col, "")).strip()
+        currency = str(row.get(currency_col, "")).strip()
+        image_url = str(row.get(image_col, "")).strip()
+
         cols = st.columns([4, 1.5])
 
         with cols[0]:
-            # Adjust these column names to match your actual headers
-            name = (
-                row.get("name")
-                or row.get("title")
-                or row.get("product_name")
-                or "Unnamed item"
-            )
+            title = product_name or "Unnamed item"
+            st.markdown(f"### {title}")
 
-            st.markdown(f"### {name}")
-
-            url = row.get("url") or row.get("link")
-            if isinstance(url, str) and url.startswith("http"):
-                st.markdown(f"[🔗 Open link]({url})")
-
-            price = row.get("price") or row.get("Price")
-            if pd.notna(price):
-                st.write(f"💸 **Price:** {price}")
-
-            note = row.get("note") or row.get("notes")
-            if isinstance(note, str) and note.strip():
-                st.write(f"📝 {note}")
-
-            added_at = row.get("added_at") or row.get("Added At")
-            if isinstance(added_at, str) and added_at.strip():
-                st.caption(f"Added at: {added_at}")
+            # Show price if present
+            if price:
+                price_display = f"{price} {currency}".strip()
+                st.write(f"💸 **Price:** {price_display}")
 
         with cols[1]:
-            image_url = row.get("image_url") or row.get("image") or row.get("Image URL")
-            if isinstance(image_url, str) and image_url.startswith("http"):
+            if image_url.startswith("http"):
                 st.image(image_url, caption="Product", use_container_width=True)
+
+        st.markdown("---")
 
 
 # ---------- UI Layout ----------
