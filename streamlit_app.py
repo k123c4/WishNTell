@@ -361,9 +361,7 @@ with st.expander("How this works", expanded=True):
         """
     )
 
-# 👉 Google Sheet wishlist FIRST
-st.markdown("## 💖 Saved Wishlist (Google Sheet)")
-render_sheet_wishlist()
+
 
 st.markdown("---")
 
@@ -387,6 +385,11 @@ with st.form("add_wishlist_item", clear_on_submit=True):
 
     if submitted:
         add_item(url, title, note)
+
+# 👉 Google Sheet wishlist FIRST
+st.markdown("## Saved Wishlist (Google Sheet)")
+render_sheet_wishlist()
+
 
 st.markdown("## ")
 
