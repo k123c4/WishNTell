@@ -1,4 +1,4 @@
-import streamlit as st
+import streamlit as st 
 import requests
 from datetime import datetime
 import pandas as pd
@@ -20,6 +20,115 @@ st.set_page_config(
     page_icon="📝",
     layout="centered",
 )
+
+# 🎨 Custom soft pastel theme
+custom_css = """
+<style>
+/* Overall app background and typography */
+[data-testid="stAppViewContainer"] {
+    background-color: #f1efe9;
+    color: #167a5f;
+}
+
+/* Main content area */
+.block-container {
+    padding-top: 2rem;
+    padding-bottom: 4rem;
+}
+
+/* Header bar */
+[data-testid="stHeader"] {
+    background: rgba(241, 239, 233, 0.9);
+    backdrop-filter: blur(6px);
+    border-bottom: 1px solid rgba(22, 122, 95, 0.08);
+}
+
+/* Sidebar */
+[data-testid="stSidebar"] {
+    background-color: #f1efe9;
+}
+[data-testid="stSidebar"] * {
+    color: #167a5f !important;
+}
+
+/* Generic text */
+html, body, p, span, div, label {
+    color: #167a5f;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+/* Titles */
+h1, h2, h3, h4, h5, h6 {
+    color: #167a5f !important;
+    font-weight: 700;
+}
+
+/* Buttons */
+.stButton>button, button[kind="primary"] {
+    background-color: #167a5f !important;
+    color: #ffffff !important;
+    border-radius: 999px !important;
+    border: none !important;
+    padding: 0.4rem 1.3rem !important;
+    font-weight: 600 !important;
+    box-shadow: 0 4px 10px rgba(22, 122, 95, 0.25);
+}
+.stButton>button:hover, button[kind="primary"]:hover {
+    background-color: #0f5a45 !important;
+    box-shadow: 0 6px 14px rgba(22, 122, 95, 0.35);
+}
+
+/* Inputs & text areas */
+.stTextInput>div>div>input,
+.stTextArea>div>textarea {
+    background-color: #fdfcf8 !important;
+    border-radius: 12px !important;
+    border: 1px solid rgba(22, 122, 95, 0.25) !important;
+    color: #167a5f !important;
+}
+.stTextInput>label, .stTextArea>label {
+    color: #167a5f !important;
+    font-weight: 600;
+}
+
+/* Expander */
+.streamlit-expanderHeader {
+    background-color: rgba(255, 255, 255, 0.75) !important;
+    border-radius: 12px !important;
+}
+.streamlit-expanderContent {
+    background-color: rgba(255, 255, 255, 0.6) !important;
+    border-radius: 0 0 12px 12px !important;
+}
+
+/* Wishlist "cards" */
+.wishlist-card {
+    background: rgba(255, 255, 255, 0.88);
+    border-radius: 18px;
+    padding: 1.1rem 1.3rem;
+    margin-bottom: 1rem;
+    border: 1px solid rgba(22, 122, 95, 0.08);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.04);
+}
+.wishlist-card h3, .wishlist-card h4 {
+    margin-top: 0.2rem;
+    margin-bottom: 0.3rem;
+}
+
+/* Subtle section separators */
+hr {
+    border: none;
+    border-top: 1px solid rgba(22, 122, 95, 0.12);
+    margin: 1rem 0;
+}
+
+/* Captions and meta text */
+small, .caption, .stMarkdown>p>em {
+    color: rgba(22, 122, 95, 0.8) !important;
+}
+</style>
+"""
+st.markdown(custom_css, unsafe_allow_html=True)
 
 # 🧠 In-memory wishlist (optional – for instant local feedback)
 if "wishlist" not in st.session_state:
@@ -107,7 +216,7 @@ def load_wishlist_from_sheet():
 
 def render_local_wishlist():
     """Show the in-session wishlist (just for local feedback)."""
-    st.subheader("📋 Current Session Wishlist (local)")
+    st.subheader("🧠 Session-only items (local)")
 
     wishlist = st.session_state["wishlist"]
     if not wishlist:
@@ -115,7 +224,9 @@ def render_local_wishlist():
         return
 
     for idx, item in enumerate(wishlist):
-        st.markdown("---")
+        # Card wrapper
+        st.markdown('<div class="wishlist-card">', unsafe_allow_html=True)
+
         cols = st.columns([4, 1.5])
 
         with cols[0]:
@@ -145,13 +256,15 @@ def render_local_wishlist():
             st.caption("URL")
             st.code(item["url"], language="text")
 
+        st.markdown("</div>", unsafe_allow_html=True)
+
 
 def render_sheet_wishlist():
-    st.subheader("📄 Wishlist from Google Sheet")
+    st.subheader("📄 Wishlist")
 
     # 🔄 Reload button lives right above the sheet view
     with st.container():
-        col_reload, col_spacer = st.columns([1, 3])
+        col_reload, col_spacer = st.columns([1, 5])
         with col_reload:
             if st.button("🔄 Reload Sheet"):
                 load_wishlist_from_sheet.clear()  # clears cache so next call is fresh
@@ -174,17 +287,33 @@ def render_sheet_wishlist():
 
     st.markdown("---")
 
+    # Helper to clean NaN → "" and strip
+    def clean(value):
+        import pandas as pd
+        if pd.isna(value):
+            return ""
+        return str(value).strip()
+
     # Use column positions dynamically (row 1 = headers, rows 2+ = data)
-    name_col = df.columns[0]      # e.g. "product_name"
-    price_col = df.columns[1]     # e.g. "price"
-    currency_col = df.columns[2]  # e.g. "currency"
-    image_col = df.columns[3]     # e.g. "image_url"
+    # Make sure your sheet has these in this order:
+    # 0: name, 1: price, 2: currency, 3: image_url, 4: product_url, 5: added_at
+    name_col = df.columns[0]
+    price_col = df.columns[1]
+    currency_col = df.columns[2]
+    image_col = df.columns[3]
+    url_col = df.columns[4]
+    added_at_col = df.columns[5]
 
     for _, row in df.iterrows():  # iterates over data rows only
-        product_name = unescape(str(row.get(name_col, "")).strip())
-        price = str(row.get(price_col, "")).strip()
-        currency = str(row.get(currency_col, "")).strip()
-        image_url = str(row.get(image_col, "")).strip()
+        product_name = unescape(clean(row.get(name_col)))
+        price = clean(row.get(price_col))
+        currency = clean(row.get(currency_col))
+        image_url = clean(row.get(image_col))
+        product_url = clean(row.get(url_col))
+        added_at = clean(row.get(added_at_col))
+
+        # Card wrapper
+        st.markdown('<div class="wishlist-card">', unsafe_allow_html=True)
 
         cols = st.columns([4, 1.5])
 
@@ -197,11 +326,21 @@ def render_sheet_wishlist():
                 price_display = f"{price} {currency}".strip()
                 st.write(f"💸 **Price:** {price_display}")
 
+
+            # Product link
+            if product_url.startswith("http"):
+                st.markdown(f"[🔗 Open link]({product_url})")
+
+            # Added timestamp
+            if added_at:
+                st.caption(f"Added: {added_at}")
+
         with cols[1]:
             if image_url.startswith("http"):
                 st.image(image_url, caption="Product", use_container_width=True)
 
-        st.markdown("---")
+        st.markdown("</div>", unsafe_allow_html=True)
+
 
 
 # ---------- UI Layout ----------
@@ -221,6 +360,12 @@ with st.expander("How this works", expanded=True):
 4. This app reads the Sheet (as CSV) and shows a **wishlist** based on it.
         """
     )
+
+# 👉 Google Sheet wishlist FIRST
+st.markdown("## 💖 Saved Wishlist (Google Sheet)")
+render_sheet_wishlist()
+
+st.markdown("---")
 
 st.markdown("### ➕ Add a new item")
 
@@ -243,10 +388,7 @@ with st.form("add_wishlist_item", clear_on_submit=True):
     if submitted:
         add_item(url, title, note)
 
-# Local session wishlist (optional)
-render_local_wishlist()
-
 st.markdown("## ")
 
-# Wishlist from Google Sheet (source of truth)
-render_sheet_wishlist()
+# 🧠 Local session wishlist SECOND
+render_local_wishlist()
