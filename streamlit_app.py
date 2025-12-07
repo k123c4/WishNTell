@@ -373,7 +373,7 @@ with st.form("add_wishlist_item", clear_on_submit=True):
     submitted = st.form_submit_button("Add to wishlist & send to n8n 🚀")
 
     if submitted:
-        add_item(url, str)
+        add_item(url)
 
 # 👉 Google Sheet wishlist FIRST
 st.markdown("## Saved Wishlist (Google Sheet)")
