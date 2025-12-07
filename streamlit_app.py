@@ -155,7 +155,7 @@ def send_to_n8n(item: dict):
         return False, e
 
 
-def add_item(url: str, str):
+def add_item(url: str):
     # Basic validation
     if not url:
         st.error("URL is required.")
