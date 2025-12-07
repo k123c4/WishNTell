@@ -212,7 +212,7 @@ def load_wishlist_from_sheet():
     return df
 
 
-def render_local_wishlist():
+def render_local_wishlist(): #optional
     """Show the in-session wishlist (just for local feedback)."""
     st.subheader("🧠 Session-only items (local)")
 
@@ -257,7 +257,7 @@ def render_local_wishlist():
         st.markdown("</div>", unsafe_allow_html=True)
 
 
-def render_sheet_wishlist():
+def render_sheet_wishlist(): #optional
     st.subheader("📄 Wishlist")
 
     # 🔄 Reload button lives right above the sheet view
@@ -383,5 +383,4 @@ render_sheet_wishlist()
 
 st.markdown("## ")
 
-# 🧠 Local session wishlist SECOND
-render_local_wishlist()
+
