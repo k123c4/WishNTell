@@ -212,7 +212,7 @@ def load_wishlist_from_sheet():
     return df
 
 
-def render_local_wishlist(): #optional
+def render_local_wishlist():  # optional
     """Show the in-session wishlist (just for local feedback)."""
     st.subheader("🧠 Session-only items (local)")
 
@@ -228,15 +228,13 @@ def render_local_wishlist(): #optional
         cols = st.columns([4, 1.5])
 
         with cols[0]:
-            display_title = item["title"] or f"Item {idx + 1}"
-            st.markdown(f"### {display_title}")
+            # 🔗 Link only (no title anymore)
             st.markdown(f"[🔗 Open link]({item['url']})")
 
-            if item.get("note"):
-                st.write(f"📝 {item['note']}")
-
+            # Timestamp
             st.caption(f"Added at: {item.get('added_at', 'Unknown')}")
 
+            # Status
             status = item.get("status", "unknown")
             if status == "sent":
                 st.markdown("✅ **Sent to n8n**")
@@ -255,6 +253,7 @@ def render_local_wishlist(): #optional
             st.code(item["url"], language="text")
 
         st.markdown("</div>", unsafe_allow_html=True)
+
 
 
 def render_sheet_wishlist(): #optional
@@ -383,4 +382,4 @@ render_sheet_wishlist()
 
 st.markdown("## ")
 
-
+render_local_wishlist()  # optional local wishlist display
