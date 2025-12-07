@@ -65,7 +65,7 @@ h1, h2, h3, h4, h5, h6 {
 
 /* Buttons */
 .stButton>button, button[kind="primary"] {
-    background-color: #167a5f !important;
+    background-color: #fdfcf8 !important;
     color: #ffffff !important;
     border-radius: 999px !important;
     border: none !important;
@@ -266,7 +266,7 @@ def render_sheet_wishlist():
     with st.container():
         col_reload, col_spacer = st.columns([1, 5])
         with col_reload:
-            if st.button("🔄 Reload Sheet"):
+            if st.button(" Reload Sheet"):
                 load_wishlist_from_sheet.clear()  # clears cache so next call is fresh
                 st.rerun()
 
