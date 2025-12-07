@@ -4,7 +4,7 @@ from datetime import datetime
 import pandas as pd
 from html import unescape  # for decoding &#x27; into apostrophes
 
-WEBHOOK_URL = "https://wishntelldemo.app.n8n.cloud/webhook-test/streamlit-chat"
+WEBHOOK_URL = "https://wishntelldemo.app.n8n.cloud/webhook/streamlit-chat"
 
 CSV_URL = (
     "https://docs.google.com/spreadsheets/d/e/"
@@ -155,7 +155,7 @@ def send_to_n8n(item: dict):
         return False, e
 
 
-def add_item(url: str, title: str, note: str):
+def add_item(url: str, str):
     # Basic validation
     if not url:
         st.error("URL is required.")
@@ -167,8 +167,6 @@ def add_item(url: str, title: str, note: str):
 
     item = {
         "url": url.strip(),
-        "title": title.strip() or None,
-        "note": note.strip() or None,
         "added_at": format_timestamp(datetime.utcnow()),
         "status": "pending",
         "error": None,
@@ -372,19 +370,11 @@ with st.form("add_wishlist_item", clear_on_submit=True):
         "Item URL",
         placeholder="https://example.com/product/123",
     )
-    title = st.text_input(
-        "Item name (optional)",
-        placeholder="Can be auto-filled later by n8n",
-    )
-    note = st.text_area(
-        "Notes (optional)",
-        placeholder="Why do you want this? Size / color / options, etc.",
-    )
 
     submitted = st.form_submit_button("Add to wishlist & send to n8n 🚀")
 
     if submitted:
-        add_item(url, title, note)
+        add_item(url)
 
 # 👉 Google Sheet wishlist FIRST
 st.markdown("## Saved Wishlist (Google Sheet)")
