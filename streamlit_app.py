@@ -4,7 +4,7 @@ from datetime import datetime
 import pandas as pd
 from html import unescape  # for decoding &#x27; into apostrophes
 
-WEBHOOK_URL = "https://k123c4.app.n8n.cloud/webhook/streamlit-chat"
+WEBHOOK_URL = "https://wishntelldemo.app.n8n.cloud/webhook-test/streamlit-chat"
 
 CSV_URL = (
     "https://docs.google.com/spreadsheets/d/e/"
