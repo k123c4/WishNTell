@@ -7,7 +7,7 @@ from html import unescape  # for decoding &#x27; into apostrophes
 WEBHOOK_URL = "https://wishntelldemo.app.n8n.cloud/webhook-test/5a5fc4d0-e5da-40a6-b440-907481907d27"
 # 🔌 Webhook URLs
 TEST_WEBHOOK_URL = "https://wishntelldemo.app.n8n.cloud/webhook-test/5a5fc4d0-e5da-40a6-b440-907481907d27"
-PROD_WEBHOOK_URL = "https://wishntelldemo.app.n8n.cloud/webhook-/5a5fc4d0-e5da-40a6-b440-907481907d27"
+PROD_WEBHOOK_URL = "https://wishntelldemo.app.n8n.cloud/webhook/5a5fc4d0-e5da-40a6-b440-907481907d27"
 
 st.markdown("### Webhook Mode")
 mode = st.radio(
