@@ -1,5 +1,6 @@
 import streamlit as st 
 import requests
+import pytz
 from datetime import datetime
 import pandas as pd
 from html import unescape  # for decoding &#x27; into apostrophes
@@ -152,7 +153,10 @@ if "wishlist" not in st.session_state:
 # ---------- Helper functions ----------
 
 def format_timestamp(dt: datetime) -> str:
-    return dt.strftime("%Y-%m-%d %H:%M")
+    tz = pytz.timezone("America/Chicago")  # <-- your timezone here
+    local_time = dt.astimezone(tz)
+    return local_time.strftime("%Y-%m-%d %H:%M")
+
 
 
 def send_to_n8n(item: dict):
@@ -181,7 +185,7 @@ def add_item(url: str):
 
     item = {
         "url": url.strip(),
-        "added_at": format_timestamp(datetime.utcnow()),
+        "added_at": format_timestamp(datetime.now()),
         "status": "pending",
         "error": None,
     }
